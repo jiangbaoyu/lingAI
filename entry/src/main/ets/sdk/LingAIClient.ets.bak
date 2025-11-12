@@ -1,0 +1,417 @@
+/**
+ * LingAI SDK 客户端
+ * 提供AI模型推理、聊天对话、文本向量化等功能的主要接口
+ */
+
+import {
+  LingAIConfig,
+  ChatCompletionRequest,
+  ChatCompletionResponse,
+  EmbeddingRequest,
+  EmbeddingResponse,
+  ModelInfo,
+  ModelDownloadRequest,
+  ModelDownloadResponse,
+  LingAIError,
+  LingAIErrorCode,
+  StreamCallback,
+  AppRegistration
+} from './types/LingAITypes';
+import { LingAIHttpClient } from './http/LingAIHttpClient';
+import { LingAIRpcClient } from './rpc/LingAIRpcClient';
+
+/**
+ * LingAI SDK 主客户端类
+ */
+export class LingAIClient {
+  private config: LingAIConfig;
+  private httpClient: LingAIHttpClient;
+  private rpcClient: LingAIRpcClient;
+  private initialized: boolean = false;
+
+  constructor(config: LingAIConfig) {
+    this.config = {
+      baseUrl: 'http://localhost:8080',
+      timeout: 30000,
+      retryAttempts: 3,
+      debug: false,
+      ...config
+    };
+    
+    this.httpClient = new LingAIHttpClient(this.config);
+    this.rpcClient = new LingAIRpcClient(this.config);
+  }
+
+  /**
+   * 初始化SDK
+   */
+  async initialize(): Promise<void> {
+    try {
+      // 验证API密钥
+      await this.validateApiKey();
+      
+      // 初始化RPC连接
+      await this.rpcClient.connect();
+      
+      this.initialized = true;
+      
+      if (this.config.debug) {
+        console.log('[LingAI] SDK初始化成功');
+      }
+    } catch (error) {
+      throw new LingAIError(
+        LingAIErrorCode.SERVICE_UNAVAILABLE,
+        'SDK初始化失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 验证API密钥
+   */
+  private async validateApiKey(): Promise<void> {
+    try {
+      const response = await this.httpClient.get('/api/v1/auth/validate');
+      if (!response.valid) {
+        throw LingAIError.authenticationError('API密钥无效');
+      }
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw LingAIError.authenticationError('API密钥验证失败');
+    }
+  }
+
+  /**
+   * 检查初始化状态
+   */
+  private ensureInitialized(): void {
+    if (!this.initialized) {
+      throw new LingAIError(
+        LingAIErrorCode.SERVICE_UNAVAILABLE,
+        'SDK未初始化，请先调用initialize()方法'
+      );
+    }
+  }
+
+  /**
+   * 聊天完成 - 非流式
+   */
+  async chatCompletion(request: ChatCompletionRequest): Promise<ChatCompletionResponse> {
+    this.ensureInitialized();
+    
+    try {
+      // 验证请求参数
+      this.validateChatRequest(request);
+      
+      // 发送请求
+      const response = await this.httpClient.post<ChatCompletionResponse>(
+        '/api/v1/chat/completions',
+        request
+      );
+      
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '聊天完成请求失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 聊天完成 - 流式
+   */
+  async chatCompletionStream(
+    request: ChatCompletionRequest,
+    callback: StreamCallback
+  ): Promise<void> {
+    this.ensureInitialized();
+    
+    try {
+      // 验证请求参数
+      this.validateChatRequest(request);
+      
+      // 设置流式请求
+      const streamRequest = { ...request, stream: true };
+      
+      // 发送流式请求
+      await this.httpClient.postStream(
+        '/api/v1/chat/completions',
+        streamRequest,
+        callback
+      );
+    } catch (error) {
+      if (callback.onError) {
+        const lingAIError = error instanceof LingAIError 
+          ? error 
+          : new LingAIError(LingAIErrorCode.UNKNOWN_ERROR, '流式聊天请求失败', error);
+        callback.onError(lingAIError);
+      }
+    }
+  }
+
+  /**
+   * 文本嵌入
+   */
+  async createEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+    this.ensureInitialized();
+    
+    try {
+      // 验证请求参数
+      this.validateEmbeddingRequest(request);
+      
+      // 发送请求
+      const response = await this.httpClient.post<EmbeddingResponse>(
+        '/api/v1/embeddings',
+        request
+      );
+      
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '文本嵌入请求失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 获取可用模型列表
+   */
+  async listModels(): Promise<ModelInfo[]> {
+    this.ensureInitialized();
+    
+    try {
+      const response = await this.httpClient.get<{ models: ModelInfo[] }>('/api/v1/models');
+      return response.models;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取模型列表失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 获取模型信息
+   */
+  async getModel(modelId: string): Promise<ModelInfo> {
+    this.ensureInitialized();
+    
+    try {
+      const response = await this.httpClient.get<ModelInfo>(`/api/v1/models/${modelId}`);
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw LingAIError.modelNotFound(modelId);
+    }
+  }
+
+  /**
+   * 下载模型
+   */
+  async downloadModel(request: ModelDownloadRequest): Promise<ModelDownloadResponse> {
+    this.ensureInitialized();
+    
+    try {
+      // 验证请求参数
+      this.validateDownloadRequest(request);
+      
+      // 发送下载请求
+      const response = await this.httpClient.post<ModelDownloadResponse>(
+        '/api/v1/models/download',
+        request
+      );
+      
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '模型下载请求失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 获取下载进度
+   */
+  async getDownloadProgress(taskId: string): Promise<{ progress: number; status: string }> {
+    this.ensureInitialized();
+    
+    try {
+      const response = await this.httpClient.get<{ progress: number; status: string }>(
+        `/api/v1/models/download/${taskId}/progress`
+      );
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取下载进度失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 删除模型
+   */
+  async deleteModel(modelId: string): Promise<void> {
+    this.ensureInitialized();
+    
+    try {
+      await this.httpClient.delete(`/api/v1/models/${modelId}`);
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '删除模型失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 注册应用
+   */
+  async registerApp(appInfo: {
+    appName: string;
+    bundleName: string;
+    permissions: string[];
+  }): Promise<AppRegistration> {
+    this.ensureInitialized();
+    
+    try {
+      const response = await this.httpClient.post<AppRegistration>(
+        '/api/v1/apps/register',
+        appInfo
+      );
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '应用注册失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 获取应用信息
+   */
+  async getAppInfo(): Promise<AppRegistration> {
+    this.ensureInitialized();
+    
+    try {
+      const response = await this.httpClient.get<AppRegistration>('/api/v1/apps/info');
+      return response;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取应用信息失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 验证聊天请求参数
+   */
+  private validateChatRequest(request: ChatCompletionRequest): void {
+    if (!request.model) {
+      throw LingAIError.invalidRequest('模型名称不能为空');
+    }
+    
+    if (!request.messages || request.messages.length === 0) {
+      throw LingAIError.invalidRequest('消息列表不能为空');
+    }
+    
+    if (request.temperature !== undefined && (request.temperature < 0 || request.temperature > 2)) {
+      throw LingAIError.invalidRequest('temperature参数必须在0-2之间');
+    }
+    
+    if (request.maxTokens !== undefined && request.maxTokens <= 0) {
+      throw LingAIError.invalidRequest('maxTokens参数必须大于0');
+    }
+  }
+
+  /**
+   * 验证嵌入请求参数
+   */
+  private validateEmbeddingRequest(request: EmbeddingRequest): void {
+    if (!request.model) {
+      throw LingAIError.invalidRequest('模型名称不能为空');
+    }
+    
+    if (!request.input) {
+      throw LingAIError.invalidRequest('输入文本不能为空');
+    }
+  }
+
+  /**
+   * 验证下载请求参数
+   */
+  private validateDownloadRequest(request: ModelDownloadRequest): void {
+    if (!request.huggingFaceId) {
+      throw LingAIError.invalidRequest('HuggingFace模型ID不能为空');
+    }
+    
+    if (!request.type) {
+      throw LingAIError.invalidRequest('模型类型不能为空');
+    }
+  }
+
+  /**
+   * 销毁客户端
+   */
+  async destroy(): Promise<void> {
+    try {
+      await this.rpcClient.disconnect();
+      this.initialized = false;
+      
+      if (this.config.debug) {
+        console.log('[LingAI] SDK已销毁');
+      }
+    } catch (error) {
+      console.error('[LingAI] SDK销毁时发生错误:', error);
+    }
+  }
+}
+
+/**
+ * 创建LingAI客户端实例
+ */
+export function createLingAIClient(config: LingAIConfig): LingAIClient {
+  return new LingAIClient(config);
+}

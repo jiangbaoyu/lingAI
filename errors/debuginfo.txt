@@ -1,0 +1,862 @@
+ hvigor ERROR: ArkTS Compiler Error
+1 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:58:14
+
+
+2 ERROR: 10605017 ArkTS Compiler Error
+Error Message: Indexed signatures are not supported (arkts-no-indexed-signatures) At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:177:3
+
+
+3 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:741:13
+
+
+4 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1237:11
+
+
+5 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1244:11
+
+
+6 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:115:13
+
+
+7 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:137:13
+
+
+8 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:173:13
+
+
+9 ERROR: 10605030 ArkTS Compiler Error
+Error Message: Structural typing is not supported (arkts-no-structural-typing) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:184:9
+
+
+10 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:205:13
+
+
+11 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:240:36
+
+
+12 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:286:15
+
+
+13 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:287:15
+
+
+14 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:408:12
+
+
+15 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:408:26
+
+
+16 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:408:38
+
+
+17 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:251:13
+
+
+18 ERROR: 10605090 ArkTS Compiler Error
+Error Message: Function return type inference is limited (arkts-no-implicit-return-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:251:40
+
+
+19 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:317:10
+
+
+20 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:317:20
+
+
+21 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:317:32
+
+
+22 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:491:43
+
+
+23 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:778:22
+
+
+24 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:784:12
+
+
+25 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:29:14
+
+
+26 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:110:38
+
+
+27 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:127:45
+
+
+28 ERROR: 10605019 ArkTS Compiler Error
+Error Message: Use inheritance instead of intersection types (arkts-no-intersection-types) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:147:21
+
+
+29 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:147:39
+
+
+30 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:147:60
+
+
+31 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:198:35
+
+
+32 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:206:20
+
+
+33 ERROR: 10605030 ArkTS Compiler Error
+Error Message: Structural typing is not supported (arkts-no-structural-typing) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:214:45
+
+
+34 ERROR: 10605030 ArkTS Compiler Error
+Error Message: Structural typing is not supported (arkts-no-structural-typing) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:287:36
+
+
+35 ERROR: 10605030 ArkTS Compiler Error
+Error Message: Structural typing is not supported (arkts-no-structural-typing) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:396:51
+
+
+36 ERROR: 10605030 ArkTS Compiler Error
+Error Message: Structural typing is not supported (arkts-no-structural-typing) At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:610:59
+
+
+37 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:52:19
+
+
+38 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:187:41
+
+
+39 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:201:39
+
+
+40 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:213:39
+
+
+41 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:225:41
+
+
+42 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:234:41
+
+
+43 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:237:41
+
+
+44 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:246:42
+
+
+45 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:252:41
+
+
+46 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:261:49
+
+
+47 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:264:41
+
+
+48 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:276:64
+
+
+49 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:300:64
+
+
+50 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:321:65
+
+
+51 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:328:13
+
+
+52 ERROR: 10605090 ArkTS Compiler Error
+Error Message: Function return type inference is limited (arkts-no-implicit-return-types) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:329:27
+
+
+53 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:329:28
+
+
+54 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:329:33
+
+
+55 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:345:26
+
+
+56 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:349:23
+
+
+57 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:368:13
+
+
+58 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:369:41
+
+
+59 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:384:11
+
+
+60 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceStub.ets:19:26
+
+
+61 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceStub.ets:28:10
+
+
+62 ERROR: 10605040 ArkTS Compiler Error
+Error Message: Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceStub.ets:29:11
+
+
+63 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceStub.ets:32:30
+
+
+64 ERROR: 10605038 ArkTS Compiler Error
+Error Message: Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceExtension.ets:119:22
+
+
+65 ERROR: 10605008 ArkTS Compiler Error
+Error Message: Use explicit types instead of "any", "unknown" (arkts-no-any-unknown) At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceExtension.ets:147:51
+
+
+66 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'SystemConfig' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'SystemConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:490:50
+
+
+67 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ModelInsertValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'ModelInsertValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:521:41
+
+
+68 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ModelUpdateValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'ModelUpdateValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:656:31
+
+
+69 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'AppRegistrationValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'AppRegistrationValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:739:50
+
+
+70 ERROR: 10505001 ArkTS Compiler Error
+Error Message: 'AppRegistration' only refers to a type, but is being used as a value here. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:741:32
+
+
+71 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'LastActiveUpdateValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'LastActiveUpdateValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:819:31
+
+
+72 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'packageName' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:925:27
+
+
+73 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'description' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:926:26
+
+
+74 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerHour' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:929:44
+
+
+75 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerDay' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:930:43
+
+
+76 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'tokensPerDay' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:931:41
+
+
+77 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'isActive' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:933:24
+
+
+78 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'createdAt' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:934:25
+
+
+79 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'lastUsedAt' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:935:27
+
+
+80 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiKeyInsertValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'ApiKeyInsertValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1037:43
+
+
+81 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiKeyLastUsedUpdateValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'ApiKeyLastUsedUpdateValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1096:31
+
+
+82 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiKeyStatusUpdateValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'ApiKeyStatusUpdateValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1118:31
+
+
+83 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerHour' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1144:40
+
+
+84 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerDay' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1145:39
+
+
+85 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'tokensPerDay' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1146:37
+
+
+86 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'DatabaseAppQuotaUpdateValues' is not assignable to parameter of type 'ValuesBucket'.
+  Index signature for type 'string' is missing in type 'DatabaseAppQuotaUpdateValues'. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1149:31
+
+
+87 ERROR: 10505001 ArkTS Compiler Error
+Error Message: 'AppQuota' only refers to a type, but is being used as a value here. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1237:23
+
+
+88 ERROR: 10505001 ArkTS Compiler Error
+Error Message: 'AppRegistration' only refers to a type, but is being used as a value here. At File: D:/projects/lingAI/entry/src/main/ets/services/DatabaseManager.ets:1244:30
+
+
+89 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Cannot find name 'URLSearchParams'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:115:31
+
+
+90 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:132:27
+
+
+91 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:143:25
+
+
+92 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:168:27
+
+
+93 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:182:25
+
+
+94 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'Error' has no properties in common with type 'ErrorDetails'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:184:9
+
+
+95 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:200:27
+
+
+96 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:211:25
+
+
+97 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ 'User-Agent': string; }' is not assignable to type 'HttpHeaders'.
+  Object literal may only specify known properties, and ''User-Agent'' does not exist in type 'HttpHeaders'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:241:9
+
+
+98 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'DOWNLOAD_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:258:27
+
+
+99 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Cannot find name 'TextEncoder'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:286:29
+
+
+100 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'DOWNLOAD_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:315:25
+
+
+101 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type '(fileProgress: any, downloaded: any, total: any) => void' is not assignable to parameter of type 'DownloadProgressCallback'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:408:11
+
+
+102 ERROR: 10505001 ArkTS Compiler Error
+Error Message: This expression is not callable.
+  Type 'DownloadProgressCallback' has no call signatures. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:415:15
+
+
+103 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'DOWNLOAD_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:433:25
+
+
+104 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:485:25
+
+
+105 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'import("D:\\DevEco_Studio\\sdk\\default\\openharmony\\ets\\api\\@ohos.net.http").default.HttpResponse' is not assignable to type 'HttpResponse'.
+  Types of property 'result' are incompatible.
+    Type 'string | Object | ArrayBuffer' is not assignable to type 'string | Record<string, string | number | boolean>'.
+      Type 'Object' is not assignable to type 'string | Record<string, string | number | boolean>'.
+        The 'Object' type is assignable to very few other types. Did you mean to use the 'any' type instead?
+          Type 'Object' is not assignable to type 'Record<string, string | number | boolean>'.
+            The 'Object' type is assignable to very few other types. Did you mean to use the 'any' type instead?
+              Index signature for type 'string' is missing in type 'Object'. At File: D:/projects/lingAI/entry/src/main/ets/services/HuggingFaceService.ets:540:5
+
+
+106 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:186:25
+
+
+107 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:206:25
+
+
+108 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'EXTERNAL_API_ERROR' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:222:25
+
+
+109 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Cannot find name 'HuggingFaceFile'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:250:25
+
+
+110 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type '(progress: any, downloaded: any, total: any) => void' is not assignable to parameter of type 'DownloadProgressCallback'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:317:9
+
+
+111 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'string | number | true' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:401:41
+
+
+112 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'string | number | true' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:404:37
+
+
+113 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:548:40
+
+
+114 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_NOT_READY' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:550:27
+
+
+115 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_FILE_NOT_FOUND' does not exist on type 'typeof LingAIErrorCode'. Did you mean 'MODEL_NOT_FOUND'? At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:558:27
+
+
+116 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'LOADED' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:570:73
+
+
+117 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:578:75
+
+
+118 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_LOAD_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:584:25
+
+
+119 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/ModelManager.ets:600:73
+
+
+120 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:163:44
+
+
+121 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_NOT_READY' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:165:27
+
+
+122 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_FILE_NOT_FOUND' does not exist on type 'typeof LingAIErrorCode'. Did you mean 'MODEL_NOT_FOUND'? At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:173:27
+
+
+123 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'maxLength' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:188:38
+
+
+124 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'temperature' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:189:40
+
+
+125 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'topP' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:190:33
+
+
+126 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'topK' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:191:33
+
+
+127 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'repetitionPenalty' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:192:46
+
+
+128 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'batchSize' does not exist on type 'ModelConfig'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:194:38
+
+
+129 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'LOADED' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:231:73
+
+
+130 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:240:75
+
+
+131 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'MODEL_LOAD_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:246:25
+
+
+132 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'READY' does not exist on type 'typeof ModelStatus'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:275:73
+
+
+133 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'topP' does not exist on type 'ChatCompletionRequest'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:322:23
+
+
+134 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'INFERENCE_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:367:25
+
+
+135 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'topP' does not exist on type 'ChatCompletionRequest'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:410:23
+
+
+136 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'INFERENCE_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:431:25
+
+
+137 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'inputs' does not exist on type 'EmbeddingRequest'. Did you mean 'input'? At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:462:40
+
+
+138 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'inputs' does not exist on type 'EmbeddingRequest'. Did you mean 'input'? At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:462:57
+
+
+139 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'completionTokens' is missing in type 'UsageStats' but required in type 'TokenUsage'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:495:9
+
+
+140 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'INFERENCE_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:504:25
+
+
+141 ERROR: 10505001 ArkTS Compiler Error
+Error Message: This expression is not callable.
+  Type 'StreamCallback' has no call signatures. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:634:7
+
+
+142 ERROR: 10505001 ArkTS Compiler Error
+Error Message: This expression is not callable.
+  Type 'StreamCallback' has no call signatures. At File: D:/projects/lingAI/entry/src/main/ets/services/InferenceEngine.ets:654:5
+
+
+143 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'APP_ALREADY_EXISTS' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:101:27
+
+
+144 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ requestsPerMinute: number; requestsPerHour: number; requestsPerDay: number; tokensPerDay: number; maxConcurrentRequests: number; }' is not assignable to type 'AppQuota'.
+  Object literal may only specify known properties, and 'requestsPerHour' does not exist in type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:112:9
+
+
+145 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ appId: string; appName: string; packageName: string; description: string; permissions: string[]; quota: AppQuota; isActive: boolean; createdAt: number; lastUsedAt: number; }' is not assignable to type 'AppRegistration'.
+  Object literal may only specify known properties, and 'packageName' does not exist in type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:130:9
+
+
+146 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ appId: string; appName: string; packageName: any; description: any; quota: AppQuota; isActive: any; createdAt: any; lastUsedAt: any; apiKey: string; }' is not assignable to type 'AppRegistration & { apiKey: string; }'.
+  Object literal may only specify known properties, and 'packageName' does not exist in type 'AppRegistration & { apiKey: string; }'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:150:9
+
+
+147 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'packageName' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:150:35
+
+
+148 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'description' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:151:35
+
+
+149 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'isActive' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:153:32
+
+
+150 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'createdAt' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:154:33
+
+
+151 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'lastUsedAt' does not exist on type 'AppRegistration'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:155:34
+
+
+152 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'APP_REGISTRATION_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:163:25
+
+
+153 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'APP_NOT_FOUND' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:179:27
+
+
+154 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerHour' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:208:38
+
+
+155 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'requestsPerDay' does not exist on type 'AppQuota'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:209:37
+
+
+156 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_GENERATION_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:225:25
+
+
+157 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_INACTIVE' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:244:29
+
+
+158 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_EXPIRED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:252:29
+
+
+159 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'INVALID_API_KEY' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:266:27
+
+
+160 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_INACTIVE' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:274:27
+
+
+161 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_EXPIRED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:281:27
+
+
+162 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_VALIDATION_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:298:25
+
+
+163 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'UsageStats' is not assignable to parameter of type 'ExtendedUsageStats'.
+  Type 'UsageStats' is missing the following properties from type 'ExtendedUsageStats': requestCount, tokenCount, errorCount At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:396:51
+
+
+164 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'QUOTA_UPDATE_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:442:25
+
+
+165 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'API_KEY_REVOCATION_FAILED' does not exist on type 'typeof LingAIErrorCode'. At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:472:25
+
+
+166 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'UsageStats' is not assignable to parameter of type 'ExtendedUsageStats'.
+  Type 'UsageStats' is missing the following properties from type 'ExtendedUsageStats': requestCount, tokenCount, errorCount At File: D:/projects/lingAI/entry/src/main/ets/services/AppAuthManager.ets:610:59
+
+
+167 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Expected 2 arguments, but got 1. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:96:24
+
+
+168 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'valid' does not exist on type 'ApiKeyInfo'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:111:25
+
+
+169 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'allowed' does not exist on type 'boolean'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:123:30
+
+
+170 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type 'AppRegistrationRequest'.
+  Type 'ApiData' is missing the following properties from type 'AppRegistrationRequest': appName, packageName, permissions At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:131:51
+
+
+171 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type 'ModelDownloadRequest'.
+  Property 'modelId' is missing in type 'ApiData' but required in type 'ModelDownloadRequest'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:140:49
+
+
+172 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type '{ modelId: string; }'.
+  Property 'modelId' is missing in type 'ApiData' but required in type '{ modelId: string; }'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:143:47
+
+
+173 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type '{ modelId: string; }'.
+  Property 'modelId' is missing in type 'ApiData' but required in type '{ modelId: string; }'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:146:48
+
+
+174 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type '{ taskId: string; }'.
+  Property 'taskId' is missing in type 'ApiData' but required in type '{ taskId: string; }'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:149:55
+
+
+175 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type 'ChatCompletionRequest'.
+  Type 'ApiData' is missing the following properties from type 'ChatCompletionRequest': model, messages At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:152:50
+
+
+176 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type 'ChatCompletionRequest'.
+  Type 'ApiData' is missing the following properties from type 'ChatCompletionRequest': model, messages At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:155:56
+
+
+177 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ApiData' is not assignable to parameter of type 'EmbeddingRequest'.
+  Type 'ApiData' is missing the following properties from type 'EmbeddingRequest': model, input At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:158:49
+
+
+178 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'valid' does not exist on type 'ApiKeyInfo'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:202:21
+
+
+179 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'ModelInfo[]' is not assignable to type 'string | number | boolean | (string | number | boolean)[] | Record<string, string | number | boolean>'.
+  Type 'ModelInfo[]' is not assignable to type '(string | number | boolean)[]'.
+    Type 'ModelInfo' is not assignable to type 'string | number | boolean'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:213:41
+
+
+180 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'string' is not assignable to parameter of type '(progress: number, downloaded: number, total: number) => void'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:223:9
+
+
+181 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'ModelInfo' is not assignable to type 'string | number | boolean | (string | number | boolean)[] | Record<string, string | number | boolean>'.
+  Type 'ModelInfo' is not assignable to type 'Record<string, string | number | boolean>'.
+    Index signature for type 'string' is missing in type 'ModelInfo'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:225:43
+
+
+182 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'ModelInfo' is not assignable to type 'string | number | boolean | (string | number | boolean)[] | Record<string, string | number | boolean>'.
+  Type 'ModelInfo' is not assignable to type 'Record<string, string | number | boolean>'.
+    Index signature for type 'string' is missing in type 'ModelInfo'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:252:43
+
+
+183 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'DownloadTask' is not assignable to type 'string | number | boolean | (string | number | boolean)[] | Record<string, string | number | boolean>'.
+  Type 'DownloadTask' is not assignable to type 'Record<string, string | number | boolean>'.
+    Index signature for type 'string' is missing in type 'DownloadTask'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:264:43
+
+
+184 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ role: "system" | "user" | "assistant"; content: string; }[]' is not assignable to type 'ChatMessage[]'.
+  Type '{ role: "system" | "user" | "assistant"; content: string; }' is not assignable to type 'ChatMessage'.
+    Types of property 'role' are incompatible.
+      Type '"system" | "user" | "assistant"' is not assignable to type 'MessageRole'.
+        Type '"system"' is not assignable to type 'MessageRole'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:279:9
+
+
+185 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Expected 4 arguments, but got 3. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:286:30
+
+
+186 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ChatCompletionResponse' is not assignable to parameter of type 'ApiData'.
+  Index signature for type 'string' is missing in type 'ChatCompletionResponse'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:288:41
+
+
+187 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ role: "system" | "user" | "assistant"; content: string; }[]' is not assignable to type 'ChatMessage[]'.
+  Type '{ role: "system" | "user" | "assistant"; content: string; }' is not assignable to type 'ChatMessage'.
+    Types of property 'role' are incompatible.
+      Type '"system" | "user" | "assistant"' is not assignable to type 'MessageRole'.
+        Type '"system"' is not assignable to type 'MessageRole'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:303:9
+
+
+188 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'ChatCompletionResponse' is not assignable to parameter of type 'ApiData'.
+  Index signature for type 'string' is missing in type 'ChatCompletionResponse'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:309:41
+
+
+189 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type '{ appId: string; modelId: string; input: string; }' is not assignable to parameter of type 'EmbeddingRequest'.
+  Object literal may only specify known properties, and 'appId' does not exist in type 'EmbeddingRequest'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:322:9
+
+
+190 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Expected 4 arguments, but got 3. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:331:30
+
+
+191 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'EmbeddingResponse' is not assignable to parameter of type 'ApiData'.
+  Index signature for type 'string' is missing in type 'EmbeddingResponse'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:333:41
+
+
+192 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type '{ version: string; supportedModels: string[]; storage: StorageStats; capabilities: { chatCompletion: boolean; streaming: boolean; embedding: boolean; modelDownload: boolean; }; }' is not assignable to parameter of type 'ApiData'.
+  Property 'storage' is incompatible with index signature.
+    Type 'StorageStats' is not assignable to type 'string | number | boolean | (string | number | boolean)[] | Record<string, string | number | boolean>'.
+      Type 'StorageStats' is not assignable to type 'Record<string, string | number | boolean>'.
+        Index signature for type 'string' is missing in type 'StorageStats'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:356:41
+
+
+193 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'getUsageStats' does not exist on type 'AppAuthManager'. Did you mean 'getAppUsageStats'? At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:368:44
+
+
+194 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Argument of type 'string[]' is not assignable to parameter of type 'string'. At File: D:/projects/lingAI/entry/src/main/ets/services/ApiRouter.ets:384:36
+
+
+195 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'onRemoteRequest' in type 'LingAIServiceStub' is not assignable to the same property in base type 'RemoteObject'.
+  Type '(code: number, data: MessageParcel, reply: MessageParcel, option: MessageOption) => Promise<boolean>' is not assignable to type '(code: number, data: MessageParcel, reply: MessageParcel, options: MessageOption) => boolean'.
+    Type 'Promise<boolean>' is not assignable to type 'boolean'. At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceStub.ets:51:9
+
+
+196 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Cannot find module '@ohos.app.ability.ServiceExtensionAbility' or its corresponding type declarations. At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceExtension.ets:6:37
+
+
+197 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Property 'context' does not exist on type 'LingAIServiceExtension'. At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceExtension.ets:25:53
+
+
+198 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type 'LingAIServiceStub' is not assignable to type 'RemoteObject'.
+  The types returned by 'onRemoteRequest(...)' are incompatible between these types.
+    Type 'Promise<boolean>' is not assignable to type 'boolean'. At File: D:/projects/lingAI/entry/src/main/ets/serviceextensionability/LingAIServiceExtension.ets:49:7
+
+
+199 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Namespace 'worker' has no exported member 'DedicatedWorkerGlobalScope'. At File: D:/projects/lingAI/entry/src/main/ets/workers/InferenceWorker.ts:47:30
+
+
+200 ERROR: 10505001 ArkTS Compiler Error
+Error Message: Type '{ content: string; finishReason: string; usage: { promptTokens: number; completionTokens: number; totalTokens: number; }; }' is not assignable to type 'string'. At File: D:/projects/lingAI/entry/src/main/ets/workers/InferenceWorker.ts:356:5

@@ -1,0 +1,448 @@
+﻿import { rpc } from '@kit.IPCKit';
+import { ModelManager } from './ModelManager';
+import { InferenceEngine } from './InferenceEngine';
+import { AppAuthManager } from './AppAuthManager';
+import { DatabaseManager } from './DatabaseManager';
+import { common } from '@kit.AbilityKit';
+
+// API请求类型枚举
+export enum ApiRequestType {
+  // 认证相关
+  REGISTER_APP = 1001,
+  VALIDATE_API_KEY = 1002,
+  
+  // 模型管理
+  LIST_MODELS = 2001,
+  DOWNLOAD_MODEL = 2002,
+  DELETE_MODEL = 2003,
+  GET_MODEL_INFO = 2004,
+  GET_DOWNLOAD_PROGRESS = 2005,
+  
+  // 推理相关
+  CHAT_COMPLETION = 3001,
+  CHAT_COMPLETION_STREAM = 3002,
+  TEXT_EMBEDDING = 3003,
+  
+  // 系统信息
+  GET_SYSTEM_INFO = 4001,
+  GET_USAGE_STATS = 4002
+}
+
+// API数据类型
+export interface ApiData extends Record<string, string | number | boolean | Array<string | number | boolean> | Record<string, unknown>> {}
+
+// API响应接口
+export interface ApiResponse {
+  success: boolean;
+  data?: ApiData;
+  error?: string;
+  code?: number;
+}
+
+// API请求接口
+export interface ApiRequest {
+  type: ApiRequestType;
+  apiKey?: string;
+  data?: ApiData;
+}
+
+// 聊天消息接口
+interface ChatMessage {
+  role: MessageRole;
+  content: string;
+}
+
+// 聊天完成请求
+export interface ChatCompletionRequest {
+  model: string;
+  messages: Array<ChatMessage>;
+  temperature?: number;
+  maxTokens?: number;
+  stream?: boolean;
+}
+
+// 文本嵌入请求
+export interface EmbeddingRequest {
+  model: string;
+  input: string | string[];
+  inputs?: string[];
+}
+
+// 模型下载请求
+export interface ModelDownloadRequest {
+  modelId: string;
+  modelName?: string;
+}
+
+// 应用注册请求
+export interface AppRegistrationRequest {
+  appName: string;
+  packageName: string;
+  description?: string;
+  permissions: string[];
+}
+
+/**
+ * API路由管理器
+ * 负责处理所有API请求的路由和分发
+ */
+export class ApiRouter {
+  private modelManager: ModelManager;
+  private inferenceEngine: InferenceEngine;
+  private authManager: AppAuthManager;
+  private dbManager: DatabaseManager;
+
+  constructor(context: common.UIAbilityContext) {
+    this.dbManager = new DatabaseManager(context);
+    this.modelManager = new ModelManager(context, this.dbManager);
+    this.inferenceEngine = new InferenceEngine(context, this.dbManager);
+    this.authManager = new AppAuthManager(this.dbManager);
+  }
+
+  /**
+   * 处理API请求
+   */
+  async handleRequest(request: ApiRequest): Promise<ApiResponse> {
+    try {
+      // 验证API Key（除了注册应用请求）
+      if (request.type !== ApiRequestType.REGISTER_APP) {
+        if (!request.apiKey) {
+          return this.createErrorResponse('API Key is required', 401);
+        }
+
+        const authResult = await this.authManager.validateApiKey(request.apiKey);
+        if (!authResult.isActive) {
+          return this.createErrorResponse('Invalid API Key', 401);
+        }
+
+        // 检查权限
+        const hasPermission = await this.checkPermission(request.type, authResult.appId!);
+        if (!hasPermission) {
+          return this.createErrorResponse('Insufficient permissions', 403);
+        }
+
+        // 检查速率限制
+        const rateLimitResult = await this.authManager.checkRateLimit(authResult.appId!);
+        if (!rateLimitResult.allowed) {
+          return this.createErrorResponse('Rate limit exceeded', 429);
+        }
+      }
+
+      // 路由到具体的处理方法
+      switch (request.type) {
+        case ApiRequestType.REGISTER_APP:
+          return await this.handleAppRegistration(request.data as AppRegistrationRequest);
+        
+        case ApiRequestType.isActiveATE_API_KEY:
+          return await this.handleApiKeyValidation(request.apiKey!);
+        
+        case ApiRequestType.LIST_MODELS:
+          return await this.handleListModels();
+        
+        case ApiRequestType.DOWNLOAD_MODEL:
+          return await this.handleDownloadModel(request.data as ModelDownloadRequest);
+        
+        case ApiRequestType.DELETE_MODEL:
+          return await this.handleDeleteModel(request.data as { modelId: string });
+        
+        case ApiRequestType.GET_MODEL_INFO:
+          return await this.handleGetModelInfo(request.data as { modelId: string });
+        
+        case ApiRequestType.GET_DOWNLOAD_PROGRESS:
+          return await this.handleGetDownloadProgress(request.data);
+        
+        case ApiRequestType.CHAT_COMPLETION:
+          return await this.handleChatCompletion(request.data as ChatCompletionRequest, request.apiKey!);
+        
+        case ApiRequestType.CHAT_COMPLETION_STREAM:
+          return await this.handleChatCompletionStream(request.data as ChatCompletionRequest, request.apiKey!);
+        
+        case ApiRequestType.TEXT_EMBEDDING:
+          return await this.handleTextEmbedding(request.data as EmbeddingRequest, request.apiKey!);
+        
+        case ApiRequestType.GET_SYSTEM_INFO:
+          return await this.handleGetSystemInfo();
+        
+        case ApiRequestType.GET_USAGE_STATS:
+          return await this.handleGetUsageStats(request.apiKey!);
+        
+        default:
+          return this.createErrorResponse('Unknown API request type', 400);
+      }
+    } catch (error) {
+      console.error('API request handling error:', error);
+      return this.createErrorResponse('Internal server error', 500);
+    }
+  }
+
+  /**
+   * 处理应用注册
+   */
+  private async handleAppRegistration(data: AppRegistrationRequest): Promise<ApiResponse> {
+    try {
+      const result = await this.authManager.registerApp(
+        data.appName,
+        data.packageName,
+        data.description || '',
+        data.permissions
+      );
+
+      const responseData: ApiData = {
+        appId: result.appId,
+        apiKey: result.apiKey
+      };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Registration failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理API Key验证
+   */
+  private async handleApiKeyValidation(apiKey: string): Promise<ApiResponse> {
+    const result = await this.authManager.validateApiKey(apiKey);
+    const responseData: ApiData = {
+      valid: result.isActive || false,
+      appId: result.appId || '',
+      permissions: result.permissions || []
+    };
+    return this.createSuccessResponse(responseData);
+  }
+
+  /**
+   * 处理模型列表请求
+   */
+  private async handleListModels(): Promise<ApiResponse> {
+    const models = await this.modelManager.getLocalModels();
+    const responseData: ApiData = { models };
+    return this.createSuccessResponse(responseData);
+  }
+
+  /**
+   * 处理模型下载请求
+   */
+  private async handleDownloadModel(data: ModelDownloadRequest): Promise<ApiResponse> {
+    try {
+      const taskId = await this.modelManager.downloadModel(
+        data.modelId,
+        data.modelName || data.modelId
+      );
+      const responseData: ApiData = { taskId };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Download failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理模型删除请求
+   */
+  private async handleDeleteModel(data: { modelId: string }): Promise<ApiResponse> {
+    try {
+      await this.modelManager.deleteModel(data.modelId);
+      const responseData: ApiData = { message: 'Model deleted successfully' };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Delete failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理获取模型信息请求
+   */
+  private async handleGetModelInfo(data: { modelId: string }): Promise<ApiResponse> {
+    try {
+      const modelInfo = await this.modelManager.getModelInfo(data.modelId);
+      if (!modelInfo) {
+        return this.createErrorResponse('Model not found', 404);
+      }
+      const responseData: ApiData = { model: modelInfo };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Failed to get model info: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理获取下载进度请求
+   */
+  private async handleGetDownloadProgress(data: { taskId: string }): Promise<ApiResponse> {
+    try {
+      const progress = await this.modelManager.getDownloadTaskStatus(data.taskId);
+      const responseData: ApiData = { progress };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Failed to get progress: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理聊天完成请求
+   */
+  private async handleChatCompletion(data: ChatCompletionRequest, apiKey: string): Promise<ApiResponse> {
+    try {
+      const authResult = await this.authManager.validateApiKey(apiKey);
+      const result = await this.inferenceEngine.chatCompletion({
+        appId: authResult.appId!,
+        modelId: data.model,
+        messages: data.messages,
+        temperature: data.temperature,
+        maxTokens: data.maxTokens,
+        stream: false
+      });
+
+      // 记录使用统计
+      await this.authManager.recordUsage(apiKey, 'chat_completion', result.usage?.totalTokens || 0, true);
+
+      const responseData: ApiData = result;
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Chat completion failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理流式聊天完成请求
+   */
+  private async handleChatCompletionStream(data: ChatCompletionRequest, apiKey: string): Promise<ApiResponse> {
+    try {
+      const authResult = await this.authManager.validateApiKey(apiKey);
+      const result = await this.inferenceEngine.chatCompletion({
+        appId: authResult.appId!,
+        modelId: data.model,
+        messages: data.messages,
+        temperature: data.temperature,
+        maxTokens: data.maxTokens,
+        stream: true
+      });
+
+      const responseData: ApiData = result;
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Stream chat completion failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理文本嵌入请求
+   */
+  private async handleTextEmbedding(data: EmbeddingRequest, apiKey: string): Promise<ApiResponse> {
+    try {
+      const authResult = await this.authManager.validateApiKey(apiKey);
+      const result = await this.inferenceEngine.createEmbedding({
+        appId: authResult.appId!,
+        modelId: data.model,
+        input: data.input
+      });
+
+      // 记录使用统计
+      const tokenCount: number = Array.isArray(data.input) ? 
+        data.input.reduce((sum: number, text: string) => sum + text.length, 0) : 
+        (data.input as string).length;
+      await this.authManager.recordUsage(apiKey, 'embedding', tokenCount, true);
+
+      const responseData: ApiData = result;
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Embedding failed: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 处理获取系统信息请求
+   */
+  private async handleGetSystemInfo(): Promise<ApiResponse> {
+    try {
+      const storageStats = await this.modelManager.getStorageStats();
+      const systemInfo = {
+        version: '1.0.0',
+        supportedModels: ['llama', 'chatglm', 'baichuan'],
+        storage: storageStats,
+        capabilities: {
+          chatCompletion: true,
+          streaming: true,
+          embedding: true,
+          modelDownload: true
+        }
+      };
+      const responseData: ApiData = systemInfo;
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Failed to get system info: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * 处理获取使用统计请求
+   */
+  private async handleGetUsageStats(apiKey: string): Promise<ApiResponse> {
+    try {
+      const authResult = await this.authManager.validateApiKey(apiKey);
+      const stats = await this.authManager.getUsageStats(authResult.appId!);
+      const responseData: ApiData = { usage: stats };
+      return this.createSuccessResponse(responseData);
+    } catch (error) {
+      return this.createErrorResponse(`Failed to get usage stats: ${error.message}`, 400);
+    }
+  }
+
+  /**
+   * 检查权限
+   */
+  private async checkPermission(requestType: ApiRequestType, appId: string): Promise<boolean> {
+    const appInfo = await this.authManager.getAppInfo(appId);
+    if (!appInfo) {
+      return false;
+    }
+
+    const permissions = JSON.parse(appInfo.permissions);
+    
+    switch (requestType) {
+      case ApiRequestType.CHAT_COMPLETION:
+      case ApiRequestType.CHAT_COMPLETION_STREAM:
+        return permissions.includes('CHAT_COMPLETION');
+      
+      case ApiRequestType.TEXT_EMBEDDING:
+        return permissions.includes('TEXT_EMBEDDING');
+      
+      case ApiRequestType.DOWNLOAD_MODEL:
+      case ApiRequestType.DELETE_MODEL:
+        return permissions.includes('MODEL_MANAGEMENT');
+      
+      default:
+        return permissions.includes('BASIC_ACCESS');
+    }
+  }
+
+  /**
+   * 创建成功响应
+   */
+  private createSuccessResponse(data: ApiData): ApiResponse {
+    return {
+      success: true,
+      data
+    };
+  }
+
+  /**
+   * 创建错误响应
+   */
+  private createErrorResponse(error: string, code: number): ApiResponse {
+    return {
+      success: false,
+      error,
+      code
+    };
+  }
+
+  /**
+   * 清理资源
+   */
+  async cleanup(): Promise<void> {
+    await this.modelManager.cleanup();
+    await this.inferenceEngine.cleanup();
+    await this.dbManager.close();
+  }
+}
+

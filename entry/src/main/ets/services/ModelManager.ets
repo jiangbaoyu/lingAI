@@ -1,0 +1,715 @@
+/**
+ * 模型管理器
+ * 负责模型的下载、存储、加载和管理
+ */
+
+import fs from '@ohos.file.fs';
+import common from '@ohos.app.ability.common';
+import {
+  ModelInfo,
+  ModelType,
+  ModelStatus,
+  LingAIError,
+  LingAIErrorCode,
+  ErrorDetails
+} from '../sdk/types/LingAITypes';
+import { DatabaseManager } from './DatabaseManager';
+import {
+  HuggingFaceService,
+  HuggingFaceModelInfo,
+  SearchParams,
+  DownloadProgressListener,
+  DownloadProgressListenerImpl,
+  HuggingFaceFile
+} from './HuggingFaceService';
+
+/**
+ * 加载的模型接口
+ */
+interface LoadedModel {
+  id: string;
+  name: string;
+  type: ModelType;
+  filePath: string;
+  config?: ModelConfig;
+  loadedAt: number;
+}
+
+/**
+ * 下载任务接口
+ */
+interface DownloadTask {
+  id: string;
+  modelId: string;
+  huggingFaceId: string;
+  progress: number;
+  status: 'pending' | 'downloading' | 'completed' | 'failed';
+  error?: string;
+  startTime: number;
+  endTime?: number;
+  downloadedSize: number;
+  totalSize: number;
+}
+
+interface ModelDownloadProgressHandler {
+  onProgress(progress: number, downloaded: number, total: number): void;
+}
+
+/**
+ * 模型配置接口
+ */
+interface ModelConfig {
+  maxLength?: number;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  repetitionPenalty?: number;
+  stopTokens?: string[];
+  contextLength?: number;
+  batchSize?: number;
+}
+
+/**
+ * 存储统计信息接口
+ */
+interface StorageStats {
+  totalModels: number;
+  totalSize: number;
+  availableSpace: number;
+  usedSpace: number;
+}
+
+/**
+ * 模型管理器类
+ */
+export class ModelManager {
+  private modelsDir: string;
+  private downloadTasks: Map<string, DownloadTask> = new Map();
+  private databaseManager: DatabaseManager;
+  private huggingFaceService: HuggingFaceService;
+  private context: common.Context;
+  private loadedModels: Map<string, LoadedModel> = new Map();
+
+  constructor(context: common.Context, databaseManager: DatabaseManager) {
+    this.context = context;
+    this.databaseManager = databaseManager;
+    this.huggingFaceService = new HuggingFaceService();
+    
+    // 设置模型存储目录
+    this.modelsDir = `${context.filesDir}/models`;
+    this.initializeModelsDirectory();
+  }
+
+  /**
+   * 初始化模型目录
+   */
+  private async initializeModelsDirectory(): Promise<void> {
+    try {
+      // 检查模型目录是否存在
+      const stat = await fs.stat(this.modelsDir);
+      if (!stat.isDirectory()) {
+        await fs.mkdir(this.modelsDir, true);
+      }
+    } catch (error) {
+      // 目录不存在，创建目录
+      try {
+        await fs.mkdir(this.modelsDir, true);
+        console.log('[ModelManager] 模型目录创建成功:', this.modelsDir);
+      } catch (createError) {
+        console.error('[ModelManager] 创建模型目录失败:', createError);
+        throw new LingAIError(
+          LingAIErrorCode.SERVICE_UNAVAILABLE,
+          '无法创建模型存储目录'
+        );
+      }
+    }
+  }
+
+  /**
+   * 获取模型列表
+   */
+  async listModels(): Promise<ModelInfo[]> {
+    try {
+      const models = await this.databaseManager.getModels();
+      return models;
+    } catch (error) {
+      console.error('[ModelManager] 获取模型列表失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取模型列表失败',
+        error instanceof Error ? error : new Error(String(error))
+      );
+    }
+  }
+
+  /**
+   * 获取模型信息
+   */
+  async getModel(modelId: string): Promise<ModelInfo> {
+    try {
+      const model = await this.databaseManager.getModel(modelId);
+      if (!model) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_FOUND,
+          `模型不存在: ${modelId}`
+        );
+      }
+      return model;
+    } catch (error) {
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      console.error('[ModelManager] 获取模型信息失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取模型信息失败',
+        error instanceof Error ? error : new Error(String(error))
+      );
+    }
+  }
+
+  /**
+   * 搜索HuggingFace模型
+   */
+  async searchHuggingFaceModels(
+    query: string,
+    limit: number = 20,
+    filter?: string
+  ): Promise<HuggingFaceModelInfo[]> {
+    try {
+      const searchParams: SearchParams = {
+        search: query,
+        limit: limit,
+        sort: 'downloads',
+        direction: 'desc',
+        filter: filter
+      };
+
+      return await this.huggingFaceService.searchModels(searchParams);
+      
+    } catch (error) {
+      console.error('[ModelManager] 搜索HuggingFace模型失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.EXTERNAL_API_ERROR,
+        '搜索模型失败',
+        this.toErrorDetails(error, '搜索模型失败')
+      );
+    }
+  }
+
+  /**
+   * 获取HuggingFace模型详细信息
+   */
+  async getHuggingFaceModelInfo(huggingFaceId: string): Promise<HuggingFaceModelInfo> {
+    try {
+      return await this.huggingFaceService.getModelInfo(huggingFaceId);
+      
+    } catch (error) {
+      console.error('[ModelManager] 获取HuggingFace模型信息失败:', error);
+      if (error instanceof LingAIError) {
+        throw error;
+      }
+      throw new LingAIError(
+        LingAIErrorCode.EXTERNAL_API_ERROR,
+        '获取模型信息失败',
+        this.toErrorDetails(error, '获取模型信息失败')
+      );
+    }
+  }
+
+  /**
+   * 获取推荐模型列表
+   */
+  async getRecommendedModels(): Promise<HuggingFaceModelInfo[]> {
+    try {
+      return await this.huggingFaceService.getRecommendedModels();
+    } catch (error) {
+      console.error('[ModelManager] 获取推荐模型失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.EXTERNAL_API_ERROR,
+        '获取推荐模型失败',
+        this.toErrorDetails(error, '获取推荐模型失败')
+      );
+    }
+  }
+
+  /**
+   * 下载模型
+   */
+  async downloadModel(
+    huggingFaceId: string,
+    onProgress?: ModelDownloadProgressHandler
+  ): Promise<ModelInfo> {
+    try {
+      console.log(`[ModelManager] 开始下载模型: ${huggingFaceId}`);
+
+      // 检查模型是否已存在
+      const existingModel = await this.databaseManager.getModelByHuggingFaceId(huggingFaceId);
+      if (existingModel && existingModel.status === ModelStatus.AVAILABLE) {
+        console.log(`[ModelManager] 模型已存在: ${huggingFaceId}`);
+        return existingModel;
+      }
+
+      // 获取模型信息
+      const hfModelInfo = await this.getHuggingFaceModelInfo(huggingFaceId);
+      
+      // 查找合适的模型文件（优先GGUF格式）
+      const modelFiles: HuggingFaceFile[] = hfModelInfo.siblings || [];
+      const ggufFile: HuggingFaceFile | undefined = modelFiles.find((file: HuggingFaceFile) => {
+        const fname = String(file.rfilename);
+        return fname.endsWith('.gguf') || fname.endsWith('.bin');
+      });
+      
+      if (!ggufFile) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_FOUND,
+          '未找到支持的模型文件格式'
+        );
+      }
+
+      const modelId = existingModel?.id || this.generateModelId(huggingFaceId);
+      const modelDir = `${this.modelsDir}/${modelId}`;
+      const modelFilePath = `${modelDir}/${String(ggufFile.rfilename)}`;
+
+      // 确保模型目录存在
+      try {
+        await fs.mkdir(modelDir, true);
+      } catch (error) {
+        // 目录可能已存在，忽略错误
+      }
+
+      const modelInfo: ModelInfo = {
+        id: modelId,
+        name: hfModelInfo.modelId || huggingFaceId,
+        description: `HuggingFace模型: ${huggingFaceId}`,
+        size: ggufFile.size || 0,
+        type: ModelType.CHAT,
+        status: ModelStatus.DOWNLOADING,
+        downloadProgress: 0,
+        filePath: modelFilePath,
+        createdAt: existingModel?.createdAt || Date.now(),
+        updatedAt: Date.now(),
+        huggingFaceId: huggingFaceId,
+        config: {
+          contextLength: 4096,
+          vocabSize: 32000
+        }
+      };
+
+      // 保存到数据库
+      if (existingModel) {
+        await this.databaseManager.updateModelStatus(modelId, ModelStatus.DOWNLOADING, 0);
+      } else {
+        await this.databaseManager.saveModel(modelInfo);
+      }
+
+      // 创建下载任务
+      const downloadTask: DownloadTask = {
+        id: this.generateTaskId(),
+        modelId: modelId,
+        huggingFaceId: huggingFaceId,
+        progress: 0,
+        status: 'downloading',
+        startTime: Date.now(),
+        downloadedSize: 0,
+        totalSize: typeof ggufFile.size === 'number' ? ggufFile.size : Number(ggufFile.size || 0)
+      };
+
+      this.downloadTasks.set(modelId, downloadTask);
+
+      // 开始下载
+      const progressHandlerImpl = (progress: number, downloaded: number, total: number): void => {
+        downloadTask.progress = progress;
+        downloadTask.downloadedSize = downloaded;
+        downloadTask.totalSize = total;
+
+        this.databaseManager.updateModelProgress(modelId, progress);
+
+        onProgress?.onProgress(progress, downloaded, total);
+      };
+      const progressHandler: DownloadProgressListener = new DownloadProgressListenerImpl(progressHandlerImpl);
+
+      await this.huggingFaceService.downloadModelFile(
+        huggingFaceId,
+        ggufFile.rfilename,
+        modelFilePath,
+        progressHandler,
+        'main',
+        typeof ggufFile.size === 'number' ? ggufFile.size : 0
+      );
+
+      // 下载完成
+      downloadTask.status = 'completed';
+      downloadTask.progress = 100;
+      downloadTask.endTime = Date.now();
+      
+      modelInfo.status = ModelStatus.AVAILABLE;
+      modelInfo.downloadProgress = 100;
+      modelInfo.updatedAt = Date.now();
+      
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.AVAILABLE, 100);
+
+      console.log(`[ModelManager] 模型下载完成: ${modelId}`);
+      return modelInfo;
+
+    } catch (error) {
+      console.error('[ModelManager] 下载模型失败:', error);
+      
+      // 更新任务状态为失败
+      const task = Array.from(this.downloadTasks.values())
+        .find(t => t.huggingFaceId === huggingFaceId);
+      if (task) {
+        task.status = 'failed';
+        task.error = this.getErrorMessage(error);
+        task.endTime = Date.now();
+      }
+      
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '下载模型失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 确定模型类型
+   */
+  private determineModelType(hfModelInfo: HuggingFaceModelInfo): ModelType {
+    const tags: string[] = hfModelInfo.tags || [];
+    const pipelineTag = hfModelInfo.pipeline_tag;
+    
+    if (pipelineTag === 'text-generation' || tags.includes('text-generation')) {
+      return ModelType.CHAT;
+    } else if (pipelineTag === 'feature-extraction' || tags.includes('sentence-transformers')) {
+      return ModelType.EMBEDDING;
+    } else if (pipelineTag === 'text2text-generation') {
+      return ModelType.CHAT;
+    }
+    
+    // 默认为聊天模型
+    return ModelType.CHAT;
+  }
+
+  /**
+   * 生成默认配置
+   */
+  private generateDefaultConfig(hfModelInfo: HuggingFaceModelInfo): ModelConfig {
+    const baseConfig: ModelConfig = {
+      maxLength: 2048,
+      temperature: 0.7,
+      topP: 0.9,
+      topK: 40,
+      repetitionPenalty: 1.1,
+      contextLength: 4096,
+      batchSize: 1
+    };
+
+    const tags = hfModelInfo.tags;
+    if (tags && tags.includes('feature-extraction')) {
+      baseConfig.temperature = 0.0;
+      baseConfig.topP = 1.0;
+    }
+
+    return baseConfig;
+  }
+
+  /**
+   * 生成模型ID
+   */
+  private generateModelId(huggingFaceId: string): string {
+    return `model_${huggingFaceId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+  }
+
+  /**
+   * 生成任务ID
+   */
+  private generateTaskId(): string {
+    return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * 获取下载任务状态
+   */
+  getDownloadTaskStatus(modelId: string): DownloadTask | null {
+    return this.downloadTasks.get(modelId) || null;
+  }
+
+  /**
+   * 获取所有下载任务
+   */
+  getAllDownloadTasks(): DownloadTask[] {
+    return Array.from(this.downloadTasks.values());
+  }
+
+  /**
+   * 取消下载任务
+   */
+  async cancelDownload(modelId: string): Promise<void> {
+    const task = this.downloadTasks.get(modelId);
+    if (task && task.status === 'downloading') {
+      task.status = 'failed';
+      task.error = '用户取消下载';
+      task.endTime = Date.now();
+      
+      // 更新数据库状态
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.ERROR);
+      
+      console.log(`[ModelManager] 下载任务已取消: ${modelId}`);
+    }
+  }
+
+  /**
+   * 获取本地模型列表
+   */
+  async getLocalModels(): Promise<ModelInfo[]> {
+    try {
+      return await this.databaseManager.getModels();
+    } catch (error) {
+      console.error('[ModelManager] 获取本地模型列表失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '获取本地模型列表失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 获取模型信息
+   */
+  async getModelInfo(modelId: string): Promise<ModelInfo | null> {
+    try {
+      return await this.databaseManager.getModel(modelId);
+    } catch (error) {
+      console.error('[ModelManager] 获取模型信息失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 删除模型
+   */
+  async deleteModel(modelId: string): Promise<void> {
+    try {
+      const model = await this.databaseManager.getModel(modelId);
+      if (!model) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_FOUND,
+          '模型不存在'
+        );
+      }
+
+      // 删除模型文件和目录
+      if (model.filePath) {
+        try {
+          const modelDir = model.filePath.substring(0, model.filePath.lastIndexOf('/'));
+          let dirExists = false;
+          try { fs.accessSync(modelDir); dirExists = true; } catch (_e) { dirExists = false; }
+          if (dirExists) {
+            // 递归删除模型目录
+            const files = fs.listFileSync(modelDir);
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+              const filePath = `${modelDir}/${file}`;
+              let fileExists = false;
+              try { fs.accessSync(filePath); fileExists = true; } catch (_e) { fileExists = false; }
+              if (fileExists) {
+                fs.unlinkSync(filePath);
+              }
+            }
+            fs.rmdirSync(modelDir);
+          }
+        } catch (fileError) {
+          console.warn('[ModelManager] 删除模型文件失败:', fileError);
+        }
+      }
+
+      // 从数据库删除
+      await this.databaseManager.deleteModel(modelId);
+
+      // 清理下载任务
+      this.downloadTasks.delete(modelId);
+
+      console.log(`[ModelManager] 模型删除成功: ${modelId}`);
+    } catch (error) {
+      console.error('[ModelManager] 删除模型失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '删除模型失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 加载模型到内存
+   */
+  async loadModel(modelId: string): Promise<void> {
+    try {
+      const model = await this.databaseManager.getModel(modelId);
+      if (!model) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_FOUND,
+          '模型不存在'
+        );
+      }
+
+      if (model.status !== ModelStatus.READY) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_READY,
+          '模型未准备就绪'
+        );
+      }
+
+      // 检查模型文件是否存在
+      if (!model.filePath) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_FILE_NOT_FOUND,
+          '模型文件不存在'
+        );
+      }
+      let fileExists = false;
+      try { fs.accessSync(model.filePath); fileExists = true; } catch (_e) { fileExists = false; }
+      if (!fileExists) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_FILE_NOT_FOUND,
+          '模型文件不存在'
+        );
+      }
+
+      // 更新模型状态为加载中
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.LOADING);
+
+      // 这里应该调用推理引擎加载模型
+      // await this.inferenceEngine.loadModel(model);
+
+      // 更新模型状态为已加载
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.LOADED);
+
+      console.log(`[ModelManager] 模型加载成功: ${modelId}`);
+    } catch (error) {
+      console.error('[ModelManager] 加载模型失败:', error);
+      
+      // 恢复模型状态
+      try {
+        await this.databaseManager.updateModelStatus(modelId, ModelStatus.READY);
+      } catch (updateError) {
+        console.error('[ModelManager] 恢复模型状态失败:', updateError);
+      }
+      
+      throw new LingAIError(
+        LingAIErrorCode.MODEL_LOAD_FAILED,
+        '加载模型失败',
+        this.toErrorDetails(error, '加载模型失败')
+      );
+    }
+  }
+
+  /**
+   * 卸载模型
+   */
+  async unloadModel(modelId: string): Promise<void> {
+    try {
+      // 这里应该调用推理引擎卸载模型
+      // await this.inferenceEngine.unloadModel(modelId);
+
+      // 更新模型状态
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.READY);
+
+      console.log(`[ModelManager] 模型卸载成功: ${modelId}`);
+    } catch (error) {
+      console.error('[ModelManager] 卸载模型失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '卸载模型失败',
+        this.toError(error)
+      );
+    }
+  }
+
+  /**
+   * 获取模型存储统计信息
+   */
+  async getStorageStats(): Promise<StorageStats> {
+    try {
+      const models = await this.getLocalModels();
+      const totalModels = models.length;
+      const totalSize = models.reduce((sum, model) => sum + model.size, 0);
+
+      // 获取存储空间信息
+      const stat = fs.statSync(this.modelsDir);
+      const availableSpace = stat.size; // 这里需要根据实际API调整
+      const usedSpace = totalSize;
+
+      const stats: StorageStats = {
+        totalModels: totalModels,
+        totalSize: totalSize,
+        availableSpace: availableSpace,
+        usedSpace: usedSpace
+      };
+      return stats;
+    } catch (error) {
+      console.error('[ModelManager] 获取存储统计失败:', error);
+      const errorStats: StorageStats = {
+        totalModels: 0,
+        totalSize: 0,
+        availableSpace: 0,
+        usedSpace: 0
+      };
+      return errorStats;
+    }
+  }
+
+  /**
+   * 清理资源
+   */
+  async cleanup(): Promise<void> {
+    try {
+      // 取消所有进行中的下载
+      const taskEntries: Array<[string, DownloadTask]> = Array.from(this.downloadTasks.entries());
+      for (let i = 0; i < taskEntries.length; i++) {
+        const modelId = taskEntries[i][0];
+        const task = taskEntries[i][1];
+        if (task.status === 'downloading') {
+          await this.cancelDownload(modelId);
+        }
+      }
+
+      this.downloadTasks.clear();
+      
+      // 销毁HuggingFace服务
+      this.huggingFaceService.destroy();
+      
+      console.log('[ModelManager] 资源清理完成');
+    } catch (error) {
+      console.error('[ModelManager] 资源清理失败:', error);
+    }
+  }
+
+  // 统一将未知异常安全转为 Error
+  private toError(error: Error | string | object): Error {
+    if (error instanceof Error) return error;
+    if (typeof error === 'string') return new Error(error);
+    try { return new Error(JSON.stringify(error)); } catch (_e) { return new Error('Unknown error'); }
+  }
+
+  // 安全提取错误信息
+  private getErrorMessage(error: Error | string | object): string {
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message;
+    try { return JSON.stringify(error); } catch (_e) { return 'Unknown error'; }
+  }
+
+  private toErrorDetails(error: Error | string | object, fallbackMessage?: string): ErrorDetails {
+    let original: string = fallbackMessage ?? 'Unknown error';
+    if (typeof error === 'string') {
+      original = error;
+    } else if (error instanceof Error) {
+      original = error.message;
+    } else {
+      try { original = JSON.stringify(error); } catch (_e) { /* noop */ }
+    }
+    return { originalError: original, timestamp: Date.now() } as ErrorDetails;
+  }
+}

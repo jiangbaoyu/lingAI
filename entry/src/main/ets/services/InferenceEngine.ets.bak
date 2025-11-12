@@ -1,0 +1,836 @@
+/**
+ * 推理引擎
+ * 负责本地模型的推理计算，包括文本生成和向量化
+ */
+
+import fs from '@ohos.file.fs';
+import worker from '@ohos.worker';
+import common from '@ohos.app.ability.common';
+import {
+  ModelInfo,
+  ModelStatus,
+  ChatMessage,
+  ChatCompletionRequest,
+  ChatCompletionResponse,
+  EmbeddingRequest,
+  EmbeddingResponse,
+  StreamCallback,
+  TokenUsage,
+  LingAIError,
+  LingAIErrorCode,
+  MessageRole
+} from '../sdk/types/LingAITypes';
+import { DatabaseManager } from './DatabaseManager';
+
+/**
+ * 推理配置接口
+ */
+interface InferenceConfig {
+  maxTokens?: number;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  repetitionPenalty?: number;
+  stopTokens?: string[];
+  seed?: number;
+  contextLength?: number;
+  batchSize?: number;
+}
+
+/**
+ * Embedding数据项接口
+ */
+interface EmbeddingDataItem {
+  object: string;
+  embedding: number[];
+  index: number;
+}
+
+/**
+ * 使用统计接口
+ */
+interface UsageStats {
+  promptTokens: number;
+  completionTokens?: number;
+  totalTokens: number;
+}
+
+/**
+ * 引擎状态接口
+ */
+interface EngineStatus {
+  loadedModels: number;
+  runningTasks: number;
+  maxConcurrentTasks: number;
+  maxLoadedModels: number;
+}
+
+/**
+ * 推理结果接口
+ */
+interface InferenceResult {
+  content: string;
+  finishReason?: string;
+}
+
+/**
+ * 流式响应Delta接口
+ */
+interface StreamDelta {
+  content?: string;
+}
+
+/**
+ * 流式响应选择接口
+ */
+interface StreamChoice {
+  index: number;
+  delta: StreamDelta;
+  finishReason: string | null;
+}
+
+/**
+ * 流式响应块接口
+ */
+interface StreamChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: StreamChoice[];
+}
+
+/**
+ * 推理任务接口
+ */
+interface InferenceTask {
+  id: string;
+  type: 'chat' | 'embedding';
+  modelId: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  startTime: number;
+  endTime?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  error?: string;
+}
+
+/**
+ * 模型实例接口
+ */
+interface ModelInstance {
+  modelId: string;
+  modelInfo: ModelInfo;
+  loadTime: number;
+  lastUsedTime: number;
+  isLoaded: boolean;
+  worker?: worker.ThreadWorker;
+  config: InferenceConfig;
+}
+
+/**
+ * 推理引擎类
+ */
+export class InferenceEngine {
+  private context: common.UIAbilityContext;
+  private databaseManager: DatabaseManager;
+  private loadedModels: Map<string, ModelInstance> = new Map();
+  private runningTasks: Map<string, InferenceTask> = new Map();
+  private maxConcurrentTasks: number = 3;
+  private maxLoadedModels: number = 2;
+  private modelCleanupInterval: number = 30 * 60 * 1000; // 30分钟
+
+  constructor(context: common.UIAbilityContext, databaseManager: DatabaseManager) {
+    this.context = context;
+    this.databaseManager = databaseManager;
+    
+    // 启动定期清理任务
+    this.startCleanupTimer();
+  }
+
+  /**
+   * 加载模型
+   */
+  async loadModel(modelId: string): Promise<void> {
+    try {
+      console.log(`[InferenceEngine] 开始加载模型: ${modelId}`);
+
+      // 检查模型是否已加载
+      if (this.loadedModels.has(modelId)) {
+        const instance = this.loadedModels.get(modelId)!;
+        instance.lastUsedTime = Date.now();
+        console.log(`[InferenceEngine] 模型已加载: ${modelId}`);
+        return;
+      }
+
+      // 获取模型信息
+      const modelInfo = await this.databaseManager.getModel(modelId);
+      if (!modelInfo) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_FOUND,
+          '模型不存在'
+        );
+      }
+
+      if (modelInfo.status !== ModelStatus.READY) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_NOT_READY,
+          '模型未准备就绪'
+        );
+      }
+
+      // 检查模型文件
+      if (!modelInfo.filePath || !fs.accessSync(modelInfo.filePath)) {
+        throw new LingAIError(
+          LingAIErrorCode.MODEL_FILE_NOT_FOUND,
+          '模型文件不存在'
+        );
+      }
+
+      // 检查是否需要卸载其他模型
+      if (this.loadedModels.size >= this.maxLoadedModels) {
+        await this.unloadLeastRecentlyUsedModel();
+      }
+
+      // 更新数据库状态
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.LOADING);
+
+      // 创建推理配置
+      const config: InferenceConfig = {
+        maxTokens: modelInfo.config?.maxLength || 2048,
+        temperature: modelInfo.config?.temperature || 0.7,
+        topP: modelInfo.config?.topP || 0.9,
+        topK: modelInfo.config?.topK || 40,
+        repetitionPenalty: modelInfo.config?.repetitionPenalty || 1.1,
+        contextLength: modelInfo.config?.contextLength || 4096,
+        batchSize: modelInfo.config?.batchSize || 1,
+        seed: -1
+      };
+
+      // 创建Worker进行模型加载（模拟）
+      const workerInstance = new worker.ThreadWorker('entry/ets/workers/InferenceWorker.ts');
+      
+      // 配置Worker消息处理
+      workerInstance.onmessage = (event) => {
+        console.log('[InferenceEngine] Worker消息:', event.data);
+      };
+
+      workerInstance.onerror = (error) => {
+        console.error('[InferenceEngine] Worker错误:', error);
+      };
+
+      // 发送加载模型命令到Worker
+      workerInstance.postMessage({
+        type: 'loadModel',
+        modelPath: modelInfo.filePath,
+        config: config
+      });
+
+      // 创建模型实例
+      const instance: ModelInstance = {
+        modelId: modelId,
+        modelInfo: modelInfo,
+        loadTime: Date.now(),
+        lastUsedTime: Date.now(),
+        isLoaded: true,
+        worker: workerInstance,
+        config: config
+      };
+
+      this.loadedModels.set(modelId, instance);
+
+      // 更新数据库状态
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.LOADED);
+
+      console.log(`[InferenceEngine] 模型加载完成: ${modelId}`);
+
+    } catch (error) {
+      console.error('[InferenceEngine] 加载模型失败:', error);
+      
+      // 恢复模型状态
+      try {
+        await this.databaseManager.updateModelStatus(modelId, ModelStatus.READY);
+      } catch (updateError) {
+        console.error('[InferenceEngine] 恢复模型状态失败:', updateError);
+      }
+      
+      throw new LingAIError(
+        LingAIErrorCode.MODEL_LOAD_FAILED,
+        '加载模型失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 卸载模型
+   */
+  async unloadModel(modelId: string): Promise<void> {
+    try {
+      const instance = this.loadedModels.get(modelId);
+      if (!instance) {
+        console.log(`[InferenceEngine] 模型未加载: ${modelId}`);
+        return;
+      }
+
+      console.log(`[InferenceEngine] 开始卸载模型: ${modelId}`);
+
+      // 终止Worker
+      if (instance.worker) {
+        instance.worker.terminate();
+      }
+
+      // 从内存中移除
+      this.loadedModels.delete(modelId);
+
+      // 更新数据库状态
+      await this.databaseManager.updateModelStatus(modelId, ModelStatus.READY);
+
+      console.log(`[InferenceEngine] 模型卸载完成: ${modelId}`);
+
+    } catch (error) {
+      console.error('[InferenceEngine] 卸载模型失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.UNKNOWN_ERROR,
+        '卸载模型失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 聊天补全
+   */
+  async chatCompletion(request: ChatCompletionRequest): Promise<ChatCompletionResponse> {
+    try {
+      console.log(`[InferenceEngine] 开始聊天补全: ${request.model}`);
+
+      // 验证请求
+      this.validateChatRequest(request);
+
+      // 确保模型已加载
+      await this.loadModel(request.model);
+      const instance = this.loadedModels.get(request.model)!;
+      instance.lastUsedTime = Date.now();
+
+      // 创建推理任务
+      const task: InferenceTask = {
+        id: this.generateTaskId(),
+        type: 'chat',
+        modelId: request.model,
+        status: 'running',
+        startTime: Date.now()
+      };
+
+      this.runningTasks.set(task.id, task);
+
+      // 构建提示文本
+      const prompt = this.buildPrompt(request.messages);
+      
+      // 合并配置
+      const config: InferenceConfig = {
+        maxTokens: request.maxTokens || instance.config.maxTokens,
+        temperature: request.temperature || instance.config.temperature,
+        topP: request.topP || instance.config.topP,
+        topK: instance.config.topK,
+        repetitionPenalty: instance.config.repetitionPenalty,
+        stopTokens: request.stop || instance.config.stopTokens,
+        seed: instance.config.seed,
+        contextLength: instance.config.contextLength,
+        batchSize: instance.config.batchSize
+      };
+
+      // 执行推理（模拟）
+      const response = await this.performInference(instance, prompt, config, task);
+
+      // 更新任务状态
+      task.status = 'completed';
+      task.endTime = Date.now();
+      task.inputTokens = this.countTokens(prompt);
+      task.outputTokens = this.countTokens(response.content);
+
+      // 构建响应
+      const chatResponse: ChatCompletionResponse = {
+        id: `chatcmpl_${task.id}`,
+        object: 'chat.completion',
+        created: Math.floor(task.startTime / 1000),
+        model: request.model,
+        choices: [{
+          index: 0,
+          message: {
+            role: MessageRole.ASSISTANT,
+            content: response.content
+          },
+          finishReason: response.finishReason || 'stop'
+        }],
+        usage: {
+          promptTokens: task.inputTokens!,
+          completionTokens: task.outputTokens!,
+          totalTokens: task.inputTokens! + task.outputTokens!
+        }
+      };
+
+      console.log(`[InferenceEngine] 聊天补全完成: ${task.id}`);
+      return chatResponse;
+
+    } catch (error) {
+      console.error('[InferenceEngine] 聊天补全失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.INFERENCE_FAILED,
+        '聊天补全失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 流式聊天补全
+   */
+  async chatCompletionStream(
+    request: ChatCompletionRequest,
+    onChunk: StreamCallback
+  ): Promise<void> {
+    try {
+      console.log(`[InferenceEngine] 开始流式聊天补全: ${request.model}`);
+
+      // 验证请求
+      this.validateChatRequest(request);
+
+      // 确保模型已加载
+      await this.loadModel(request.model);
+      const instance = this.loadedModels.get(request.model)!;
+      instance.lastUsedTime = Date.now();
+
+      // 创建推理任务
+      const task: InferenceTask = {
+        id: this.generateTaskId(),
+        type: 'chat',
+        modelId: request.model,
+        status: 'running',
+        startTime: Date.now()
+      };
+
+      this.runningTasks.set(task.id, task);
+
+      // 构建提示文本
+      const prompt = this.buildPrompt(request.messages);
+      
+      // 合并配置
+      const config: InferenceConfig = {
+        maxTokens: request.maxTokens || instance.config.maxTokens,
+        temperature: request.temperature || instance.config.temperature,
+        topP: request.topP || instance.config.topP,
+        topK: instance.config.topK,
+        repetitionPenalty: instance.config.repetitionPenalty,
+        stopTokens: request.stop || instance.config.stopTokens,
+        seed: instance.config.seed,
+        contextLength: instance.config.contextLength,
+        batchSize: instance.config.batchSize
+      };
+
+      // 执行流式推理（模拟）
+      await this.performStreamInference(instance, prompt, config, task, onChunk);
+
+      // 更新任务状态
+      task.status = 'completed';
+      task.endTime = Date.now();
+
+      console.log(`[InferenceEngine] 流式聊天补全完成: ${task.id}`);
+
+    } catch (error) {
+      console.error('[InferenceEngine] 流式聊天补全失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.INFERENCE_FAILED,
+        '流式聊天补全失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 文本向量化
+   */
+  async createEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+    try {
+      console.log(`[InferenceEngine] 开始文本向量化: ${request.model}`);
+
+      // 确保模型已加载
+      await this.loadModel(request.model);
+      const instance = this.loadedModels.get(request.model)!;
+      instance.lastUsedTime = Date.now();
+
+      // 创建推理任务
+      const task: InferenceTask = {
+        id: this.generateTaskId(),
+        type: 'embedding',
+        modelId: request.model,
+        status: 'running',
+        startTime: Date.now()
+      };
+
+      this.runningTasks.set(task.id, task);
+
+      // 处理输入文本
+      const inputs: string[] = request.inputs ? request.inputs : [request.input];
+      const embeddings: number[][] = [];
+
+      for (const input of inputs) {
+        // 执行向量化（模拟）
+        const embedding = await this.performEmbedding(instance, input, task);
+        embeddings.push(embedding);
+      }
+
+      // 更新任务状态
+      task.status = 'completed';
+      task.endTime = Date.now();
+      task.inputTokens = inputs.reduce((sum, input) => sum + this.countTokens(input), 0);
+
+      // 构建响应
+      const embeddingData: EmbeddingDataItem[] = embeddings.map((embedding, index) => {
+        const item: EmbeddingDataItem = {
+          object: 'embedding',
+          embedding: embedding,
+          index: index
+        };
+        return item;
+      });
+
+      const usage: TokenUsage = {
+        promptTokens: task.inputTokens!,
+        completionTokens: 0,
+        totalTokens: task.inputTokens!
+      };
+
+      const response: EmbeddingResponse = {
+        object: 'list',
+        data: embeddingData,
+        model: request.model,
+        usage: usage
+      };
+
+      console.log(`[InferenceEngine] 文本向量化完成: ${task.id}`);
+      return response;
+
+    } catch (error) {
+      console.error('[InferenceEngine] 文本向量化失败:', error);
+      throw new LingAIError(
+        LingAIErrorCode.INFERENCE_FAILED,
+        '文本向量化失败',
+        error
+      );
+    }
+  }
+
+  /**
+   * 验证聊天请求
+   */
+  private validateChatRequest(request: ChatCompletionRequest): void {
+    if (!request.model) {
+      throw new LingAIError(
+        LingAIErrorCode.INVALID_REQUEST,
+        '缺少模型参数'
+      );
+    }
+
+    if (!request.messages || request.messages.length === 0) {
+      throw new LingAIError(
+        LingAIErrorCode.INVALID_REQUEST,
+        '缺少消息内容'
+      );
+    }
+
+    if (request.maxTokens && (request.maxTokens < 1 || request.maxTokens > 8192)) {
+      throw new LingAIError(
+        LingAIErrorCode.INVALID_REQUEST,
+        'maxTokens参数超出范围'
+      );
+    }
+
+    if (request.temperature && (request.temperature < 0 || request.temperature > 2)) {
+      throw new LingAIError(
+        LingAIErrorCode.INVALID_REQUEST,
+        'temperature参数超出范围'
+      );
+    }
+  }
+
+  /**
+   * 构建提示文本
+   */
+  private buildPrompt(messages: ChatMessage[]): string {
+    let prompt = '';
+    
+    for (const message of messages) {
+      switch (message.role) {
+        case MessageRole.SYSTEM:
+          prompt += `System: ${message.content}\n\n`;
+          break;
+        case MessageRole.USER:
+          prompt += `Human: ${message.content}\n\n`;
+          break;
+        case MessageRole.ASSISTANT:
+          prompt += `Assistant: ${message.content}\n\n`;
+          break;
+      }
+    }
+    
+    prompt += 'Assistant: ';
+    return prompt;
+  }
+
+  /**
+   * 执行推理（模拟实现）
+   */
+  private async performInference(
+    instance: ModelInstance,
+    prompt: string,
+    config: InferenceConfig,
+    task: InferenceTask
+  ): Promise<InferenceResult> {
+    // 模拟推理延迟
+    await new Promise<void>(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+    // 模拟生成响应
+    const responses = [
+      '我是LingAI助手，很高兴为您服务！有什么我可以帮助您的吗？',
+      '这是一个很有趣的问题。让我来为您详细解答...',
+      '根据您的描述，我建议您可以尝试以下几种方法：',
+      '感谢您的提问。基于我的理解，这个问题可以从多个角度来分析...',
+      '我理解您的需求。让我为您提供一些实用的建议和解决方案。'
+    ];
+
+    const content = responses[Math.floor(Math.random() * responses.length)];
+    
+    const result: InferenceResult = {
+      content: content,
+      finishReason: 'stop'
+    };
+    
+    return result;
+  }
+
+  /**
+   * 执行流式推理（模拟实现）
+   */
+  private async performStreamInference(
+    instance: ModelInstance,
+    prompt: string,
+    config: InferenceConfig,
+    task: InferenceTask,
+    onChunk: StreamCallback
+  ): Promise<void> {
+    const fullResponse = '我是LingAI助手，很高兴为您服务！有什么我可以帮助您的吗？';
+    const words = fullResponse.split('');
+    
+    for (let i = 0; i < words.length; i++) {
+      // 模拟生成延迟
+      await new Promise<void>(resolve => setTimeout(resolve, 50 + Math.random() * 100));
+      
+      const delta: StreamDelta = {
+        content: words[i]
+      };
+      
+      const choice: StreamChoice = {
+        index: 0,
+        delta: delta,
+        finishReason: null
+      };
+      
+      const chunk: StreamChunk = {
+        id: `chatcmpl_${task.id}`,
+        object: 'chat.completion.chunk',
+        created: Math.floor(Date.now() / 1000),
+        model: instance.modelId,
+        choices: [choice]
+      };
+      
+      onChunk(JSON.stringify(chunk));
+    }
+    
+    // 发送结束标记
+    const endDelta: StreamDelta = {};
+    
+    const endChoice: StreamChoice = {
+      index: 0,
+      delta: endDelta,
+      finishReason: 'stop'
+    };
+    
+    const endChunk: StreamChunk = {
+      id: `chatcmpl_${task.id}`,
+      object: 'chat.completion.chunk',
+      created: Math.floor(Date.now() / 1000),
+      model: instance.modelId,
+      choices: [endChoice]
+    };
+    
+    onChunk(JSON.stringify(endChunk));
+  }
+
+  /**
+   * 执行向量化（模拟实现）
+   */
+  private async performEmbedding(
+    instance: ModelInstance,
+    text: string,
+    task: InferenceTask
+  ): Promise<number[]> {
+    // 模拟向量化延迟
+    await new Promise<void>(resolve => setTimeout(resolve, 200 + Math.random() * 500));
+
+    // 生成模拟向量（384维）
+    const embedding: number[] = [];
+    for (let i = 0; i < 384; i++) {
+      embedding.push((Math.random() - 0.5) * 2);
+    }
+    
+    // 归一化向量
+    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    return embedding.map(val => val / norm);
+  }
+
+  /**
+   * 计算Token数量（简单实现）
+   */
+  private countTokens(text: string): number {
+    // 简单的Token计算：按空格和标点分割
+    return text.split(/\s+|[.,!?;:]/).filter(token => token.length > 0).length;
+  }
+
+  /**
+   * 卸载最近最少使用的模型
+   */
+  private async unloadLeastRecentlyUsedModel(): Promise<void> {
+    let oldestTime = Date.now();
+    let oldestModelId = '';
+    
+    const modelEntries = Array.from(this.loadedModels.entries());
+    for (let i = 0; i < modelEntries.length; i++) {
+      const modelId = modelEntries[i][0];
+      const instance = modelEntries[i][1];
+      if (instance.lastUsedTime < oldestTime) {
+        oldestTime = instance.lastUsedTime;
+        oldestModelId = modelId;
+      }
+    }
+    
+    if (oldestModelId) {
+      await this.unloadModel(oldestModelId);
+    }
+  }
+
+  /**
+   * 启动清理定时器
+   */
+  private startCleanupTimer(): void {
+    setInterval(() => {
+      this.cleanupUnusedModels();
+      this.cleanupCompletedTasks();
+    }, this.modelCleanupInterval);
+  }
+
+  /**
+   * 清理未使用的模型
+   */
+  private async cleanupUnusedModels(): Promise<void> {
+    const now = Date.now();
+    const modelsToUnload: string[] = [];
+    
+    const modelEntries2 = Array.from(this.loadedModels.entries());
+    for (let i = 0; i < modelEntries2.length; i++) {
+      const modelId = modelEntries2[i][0];
+      const instance = modelEntries2[i][1];
+      if (now - instance.lastUsedTime > this.modelCleanupInterval) {
+        modelsToUnload.push(modelId);
+      }
+    }
+    
+    for (const modelId of modelsToUnload) {
+      try {
+        await this.unloadModel(modelId);
+        console.log(`[InferenceEngine] 自动卸载未使用模型: ${modelId}`);
+      } catch (error) {
+        console.error(`[InferenceEngine] 自动卸载模型失败: ${modelId}`, error);
+      }
+    }
+  }
+
+  /**
+   * 清理已完成的任务
+   */
+  private cleanupCompletedTasks(): void {
+    const now = Date.now();
+    const tasksToRemove: string[] = [];
+    
+    const taskEntries = Array.from(this.runningTasks.entries());
+    for (let i = 0; i < taskEntries.length; i++) {
+      const taskId = taskEntries[i][0];
+      const task = taskEntries[i][1];
+      if (task.status === 'completed' || task.status === 'failed') {
+        if (task.endTime && now - task.endTime > 60000) { // 1分钟后清理
+          tasksToRemove.push(taskId);
+        }
+      }
+    }
+    
+    for (const taskId of tasksToRemove) {
+      this.runningTasks.delete(taskId);
+    }
+  }
+
+  /**
+   * 生成任务ID
+   */
+  private generateTaskId(): string {
+    return `inf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * 获取引擎状态
+   */
+  getEngineStatus(): EngineStatus {
+    const status: EngineStatus = {
+      loadedModels: this.loadedModels.size,
+      runningTasks: Array.from(this.runningTasks.values())
+        .filter((task: InferenceTask): boolean => task.status === 'running').length,
+      maxConcurrentTasks: this.maxConcurrentTasks,
+      maxLoadedModels: this.maxLoadedModels
+    };
+    return status;
+  }
+
+  /**
+   * 获取已加载的模型列表
+   */
+  getLoadedModels(): string[] {
+    return Array.from(this.loadedModels.keys());
+  }
+
+  /**
+   * 获取运行中的任务
+   */
+  getRunningTasks(): InferenceTask[] {
+    return Array.from(this.runningTasks.values())
+      .filter(task => task.status === 'running');
+  }
+
+  /**
+   * 清理资源
+   */
+  async cleanup(): Promise<void> {
+    try {
+      // 卸载所有模型
+      const modelIds = Array.from(this.loadedModels.keys());
+      for (const modelId of modelIds) {
+        await this.unloadModel(modelId);
+      }
+
+      // 清理任务
+      this.runningTasks.clear();
+
+      console.log('[InferenceEngine] 资源清理完成');
+    } catch (error) {
+      console.error('[InferenceEngine] 资源清理失败:', error);
+    }
+  }
+}
